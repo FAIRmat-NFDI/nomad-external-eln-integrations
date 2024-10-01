@@ -1,0 +1,27 @@
+{
+  "template": "https://github.com/FAIRmat-NFDI/cookiecutter-nomad-plugin",
+  "commit": "f5c6c2f505cc47d19a9499f4b3b961f9ceb48b5f",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Amir Golparvar",
+      "email": "amir.golaprvar@physuk.hu-berlin.de",
+      "github_username": "amirgolp",
+      "plugin_name": "nomad-external-eln-integrations",
+      "module_name": "nomad_external_eln_integrations",
+      "short_description": "Nomad example template",
+      "version": "0.1.0",
+      "license": "Apache Software License 2.0",
+      "include_schema_package": true,
+      "include_normalizer": true,
+      "include_parser": true,
+      "include_app": true,
+      "include_example_uploads": true,
+      "_copy_without_render": [
+        "*.html"
+      ],
+      "_template": "https://github.com/FAIRmat-NFDI/cookiecutter-nomad-plugin"
+    }
+  },
+  "directory": null
+}

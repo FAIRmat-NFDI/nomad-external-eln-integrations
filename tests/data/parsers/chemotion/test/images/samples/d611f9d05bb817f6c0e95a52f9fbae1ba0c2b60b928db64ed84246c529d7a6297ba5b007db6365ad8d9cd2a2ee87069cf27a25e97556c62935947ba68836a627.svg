@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" height="35.400000000000006" version="1.1" width="59.049999999999955" style="overflow: hidden; position: relative;" viewBox="0 0 79 55">
+  <g transform="translate(-513, -234)">
+    <defs/>
+    <circle cx="512" cy="204.00000000000003" r="24" fill="none" stroke="#00cc00" style="display: none;" stroke-width="0.96" transform="matrix(1,0,0,1,40,40)"/>
+    <text style="text-anchor: middle; font: 24px &quot;Arial&quot;;" x="512" y="204.00000000000003" text-anchor="middle" font="30px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="24px" transform="matrix(1,0,0,1,40,40)">
+      <tspan dy="8.500000000000028">O</tspan>
+    </text>
+    <text style="text-anchor: middle; font: 24px &quot;Arial&quot;;" x="512" y="204.00000000000003" text-anchor="middle" font="30px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="24px" transform="matrix(1,0,0,1,10.95,40)">
+      <tspan dy="8.500000000000028">H</tspan>
+    </text>
+    <text style="text-anchor: middle; font: 17px &quot;Arial&quot;;" x="512" y="204.00000000000003" text-anchor="middle" font="30px &quot;Arial&quot;" stroke="none" fill="#000000" font-size="17px" transform="matrix(1,0,0,1,25.1417,45.4)">
+      <tspan dy="5.500000000000028">2</tspan>
+    </text>
+  </g>
+</svg>
