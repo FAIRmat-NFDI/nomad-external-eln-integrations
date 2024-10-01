@@ -11,6 +11,6 @@ class ElabftwNormalizerEntryPoint(SchemaPackageEntryPoint):
 
 
 schema = ElabftwNormalizerEntryPoint(
-    name='elabftw2',
+    name='elabftw',
     description='NOMAD integration for mapping elabftw data to NOMAD schema',
 )
