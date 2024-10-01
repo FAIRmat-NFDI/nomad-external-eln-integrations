@@ -5,11 +5,11 @@
   "context": {
     "cookiecutter": {
       "full_name": "Amir Golparvar",
-      "email": "amir.golaprvar@physuk.hu-berlin.de",
+      "email": "amir.golparvar@physik.hu-berlin.de",
       "github_username": "amirgolp",
       "plugin_name": "nomad-external-eln-integrations",
       "module_name": "nomad_external_eln_integrations",
-      "short_description": "Nomad example template",
+      "short_description": "NOMAD External 3rd-party Integrations",
       "version": "0.1.0",
       "license": "Apache Software License 2.0",
       "include_schema_package": true,

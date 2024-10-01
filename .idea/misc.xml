@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.9 (jupyterTest)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (nomad-eln-external-integrations)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (nomad-external-eln-integrations)" project-jdk-type="Python SDK" />
 </project>

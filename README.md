@@ -169,4 +169,4 @@ To run the check for updates locally, follow the instructions on [`cruft` websit
 ## Main contributors
 | Name | E-mail     |
 |------|------------|
-| Amir Golparvar | [amir.golaprvar@physuk.hu-berlin.de](mailto:amir.golparvar@physuk.hu-berlin.de)
+| Amir Golparvar | [amir.golparvar@physik.hu-berlin.de](mailto:amir.golparvar@physik.hu-berlin.de)
