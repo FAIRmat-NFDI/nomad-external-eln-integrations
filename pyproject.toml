@@ -113,7 +113,7 @@ chemotionparser = "nomad_external_eln_integrations.parsers:chemotion_parser_entr
 labfolderschema = "nomad_external_eln_integrations.schema_packages.labfolder:schema"
 elabftwschema = "nomad_external_eln_integrations.schema_packages.elabftw:schema"
 openbisschema = "nomad_external_eln_integrations.schema_packages.openbis:schema"
-example_upload_entry_point = "nomad_external_eln_integrations.example_uploads:example_upload_entry_point"
+elabftwexample = "nomad_external_eln_integrations.example_uploads:elabftwexample"
 [tool.cruft]
 # Avoid updating workflow files, this leads to permissions issues
 skip = [".github/*"]

@@ -1,8 +1,9 @@
 from nomad.config.models.plugins import ExampleUploadEntryPoint
 
-example_upload_entry_point = ExampleUploadEntryPoint(
-    title='New Example Upload',
+elabftwexample = ExampleUploadEntryPoint(
+    title='ELN File Format Example',
     category='Examples',
-    description='Description of this example upload.',
-    path='example_uploads/getting_started',
+    description='Thi example contains an ELabFTW Experiment exported into .ELN '
+                'file format.',
+    path='example_uploads/files',
 )
