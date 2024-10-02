@@ -23,7 +23,7 @@ import json
 import requests
 from nomad.datamodel import EntryArchive, EntryMetadata
 
-from src.nomad_external_eln_integrations.schema_packages.labfolder.schema import LabfolderProject, LabfolderImportError
+from nomad_external_eln_integrations.schema_packages.labfolder.schema import LabfolderProject, LabfolderImportError
 
 
 def test_labfolder_integration():

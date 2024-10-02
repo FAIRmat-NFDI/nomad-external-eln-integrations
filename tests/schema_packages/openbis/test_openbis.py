@@ -25,7 +25,7 @@ from nomad_openbis import openbis
 from nomad import utils
 from nomad.datamodel import EntryArchive, EntryMetadata
 
-from src.nomad_external_eln_integrations.schema_packages.openbis.schema import OpenbisEntry, OpenbisImportError
+from nomad_external_eln_integrations.schema_packages.openbis.schema import OpenbisEntry, OpenbisImportError
 
 
 def mocked_login(url):

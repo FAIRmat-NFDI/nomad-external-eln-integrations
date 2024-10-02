@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 from nomad.datamodel import EntryArchive, EntryMetadata
 
-from src.nomad_external_eln_integrations.parsers.chemotion.parser import (
+from nomad_external_eln_integrations.parsers.chemotion.parser import (
     ChemotionParser,
     _element_type_section_mapping,
 )
