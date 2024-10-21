@@ -181,6 +181,12 @@ class ELabFTWExperimentData(MSection):
         a_eln=dict(component='StringEditQuantity'),
         description="Author's full name",
     )
+    tags = Quantity(
+        type=str,
+        shape=['*'],
+        a_eln=dict(component='StringEditQuantity'),
+        description='Tags',
+    )
 
     items_links = SubSection(sub_section=ELabFTWItemLink, repeats=True)
     experiments_links = SubSection(sub_section=ELabFTWExperimentLink, repeats=True)
@@ -374,7 +380,11 @@ class ELabFTWParser(MatchingParser):
                 )
                 no_of_experiments = len(root_experiment['hasPart'])
             else:
-                no_of_experiments = len(data['@graph'][-2]['hasPart'])
+                no_of_experiments = len(
+                    [item['hasPart'] for item in data['@graph'] if item['@id'] == './'][
+                        0
+                    ]
+                )
         except (KeyError, IndexError, TypeError):
             return False
 
@@ -486,28 +496,68 @@ def _parse_legacy(
         title = extracted_title
     elabftw_experiment.title = title
 
-    path_to_export_json = os.path.join(mainfile_raw_path, exp_id, 'export-elabftw.json')
     try:
+        export_json_path = [
+            item['id']
+            for item in raw_experiment['has_part']
+            if item['id'].endswith('.json', None)
+        ][0]
+        path_to_export_json = os.path.join(mainfile_raw_path, export_json_path)
+
         with open(path_to_export_json) as f:
             export_data = json.load(f)
+            export_data = (
+                [export_data] if isinstance(export_data, dict) else export_data
+            )
     except FileNotFoundError:
-        raise ELabFTWParserError("Couldn't find export-elabftw.json file.")
+        raise ELabFTWParserError(
+            f"Couldn't locate the {export_json_path} file of the main entry."
+            f'Either the the exported file is corrupted or the data model is changed.'
+        )
 
     def clean_nones(value):
         if isinstance(value, list):
-            return [
-                clean_nones(x) for x in value
-            ]  # ??? what to do if this list has None values
+            return [clean_nones(x) for x in value if x is not None]
         if isinstance(value, dict):
             return {k: clean_nones(v) for k, v in value.items() if v is not None}
 
         return value
 
+    def convert_keys(target_dict, conversion_mapping):
+        new_dict = {}
+        for key, value in target_dict.items():
+            new_key = next(
+                (
+                    conversion_mapping[conv_key]
+                    for conv_key in conversion_mapping
+                    if conv_key in key
+                ),
+                key,
+            )
+            if isinstance(value, dict):
+                value = convert_keys(value, conversion_mapping)
+            new_dict[new_key] = (
+                {i: value[i] for i in range(len(value))}
+                if isinstance(value, list) and new_key == 'extra_fields'
+                else value
+            )
+        return new_dict
+
+    key_mapping = {
+        'extra': 'extra_fields',
+        'link': 'experiments_links',
+        'description': 'body',
+        'name': 'title',
+    }
     experiment_data = ELabFTWExperimentData()
     try:
-        experiment_data.m_update_from_dict(clean_nones(export_data[0]))
+        cleaned_data = clean_nones(export_data[0])
+        cleaned_data = convert_keys(cleaned_data, key_mapping)
+        experiment_data.m_update_from_dict(cleaned_data)
     except (IndexError, KeyError, TypeError):
-        logger.warning("Couldn't read and parse the data from export-elabftw.json file")
+        logger.warning(
+            f"Couldn't read and parse the data from {export_json_path.lstrip('./')} file."
+        )
     try:
         experiment_data.extra_fields = export_data[0]['metadata']['extra_fields']
     except Exception:
@@ -540,6 +590,7 @@ def _set_child_entry_name(exp_id, child_archive, archive, logger):
     matched_title = exp_id.split('/')
     if len(matched_title) > 1:
         extracted_title = matched_title[1]
+        extracted_title = re.sub(r'[-_]', ' ', extracted_title)
         archive.metadata.m_update_from_dict(dict(entry_name='ELabFTW Schema'))
         child_archive.metadata.m_update_from_dict(dict(entry_name=extracted_title))
     else:
