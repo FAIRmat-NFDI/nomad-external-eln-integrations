@@ -109,6 +109,9 @@ class ELabFTWExperimentLink(MSection):
     itemid = Quantity(
         type=str, description='id of the external experiment linked to this experiment'
     )
+    id = Quantity(
+        type=str, description='id of the experiment linked to this experiment'
+    )
     title = Quantity(type=str, description='title of the external experiment')
     elabid = Quantity(type=str, description='hashed id')
     category = Quantity(
@@ -196,30 +199,34 @@ class ELabFTWExperimentData(MSection):
     def normalize(self, archive, logger) -> None:
         exp_ids = [('experiments', exp.itemid) for exp in self.experiments_links]
         res_ids = [('database', exp.itemid) for exp in self.items_links]
+        try:
+            for item in exp_ids + res_ids:
+                from nomad.search import MetadataPagination, search
 
-        for item in exp_ids + res_ids:
-            from nomad.search import MetadataPagination, search
-
-            query = {'external_id': item[1]}
-            search_result = search(
-                owner='all',
-                query=query,
-                pagination=MetadataPagination(page_size=1),
-                user_id=archive.metadata.main_author.user_id,
-            )
-            if search_result.pagination.total > 0:
-                entry_id = search_result.data[0]['entry_id']
-                upload_id = search_result.data[0]['upload_id']
-                ref = ELabFTWRef()
-                ref.row_refs = f'../uploads/{upload_id}/archive/{entry_id}#data'
-                self.references.append(ref)
-                if search_result.pagination.total > 1:
+                query = {'external_id': item[1]}
+                search_result = search(
+                    owner='all',
+                    query=query,
+                    pagination=MetadataPagination(page_size=1),
+                    user_id=archive.metadata.main_author.user_id,
+                )
+                if search_result.pagination.total > 0:
+                    entry_id = search_result.data[0]['entry_id']
+                    upload_id = search_result.data[0]['upload_id']
+                    ref = ELabFTWRef()
+                    ref.row_refs = f'../uploads/{upload_id}/archive/{entry_id}#data'
+                    self.references.append(ref)
+                    if search_result.pagination.total > 1:
+                        logger.warn(
+                            f'Found {search_result.pagination.total} entries with external id: '
+                            f'"{item[1]}". Will use the first one found.'
+                        )
+                else:
                     logger.warn(
-                        f'Found {search_result.pagination.total} entries with external id: '
-                        f'"{item[1]}". Will use the first one found.'
+                        f'Found no entries with metadata.external_id: "{item[1]}".'
                     )
-            else:
-                logger.warn(f'Found no entries with metadata.external_id: "{item[1]}".')
+        except Exception:
+            logger.error('Failed to fetch the referenced experiments internally.')
 
 
 class ELabFTWComment(MSection):
@@ -523,19 +530,19 @@ def _parse_legacy(
 
         return value
 
-    def convert_keys(target_dict, conversion_mapping):
+    def convert_keys(target_dict: dict, conversion_mapping: dict) -> dict:
         new_dict = {}
         for key, value in target_dict.items():
-            new_key = next(
-                (
-                    conversion_mapping[conv_key]
-                    for conv_key in conversion_mapping
-                    if conv_key in key
-                ),
-                key,
-            )
             if isinstance(value, dict):
                 value = convert_keys(value, conversion_mapping)
+            elif isinstance(value, list):
+                value = [
+                    convert_keys(item, conversion_mapping)
+                    if isinstance(item, dict)
+                    else item
+                    for item in value
+                ]
+            new_key = conversion_mapping.get(key, key)
             new_dict[new_key] = (
                 {i: value[i] for i in range(len(value))}
                 if isinstance(value, list) and new_key == 'extra_fields'
@@ -554,7 +561,7 @@ def _parse_legacy(
         cleaned_data = clean_nones(export_data[0])
         cleaned_data = convert_keys(cleaned_data, key_mapping)
         experiment_data.m_update_from_dict(cleaned_data)
-    except (IndexError, KeyError, TypeError):
+    except Exception:
         logger.warning(
             f"Couldn't read and parse the data from {export_json_path.lstrip('./')} file."
         )
@@ -569,11 +576,11 @@ def _parse_legacy(
 
         lab_ids.extend(
             ('experiment_link', experiment_link['itemid'])
-            for experiment_link in export_data[0]['experiments_links']
+            for experiment_link in cleaned_data['experiments_links']
         )
         lab_ids.extend(
             ('item_link', experiment_link['itemid'])
-            for experiment_link in export_data[0]['items_links']
+            for experiment_link in cleaned_data['items_links']
         )
     except Exception:
         pass

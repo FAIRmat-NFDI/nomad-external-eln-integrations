@@ -19,7 +19,7 @@
 import pytest
 from nomad.datamodel import EntryArchive, EntryMetadata
 
-from nomad_external_eln_integrations.parsers.elabftw import ELabFTWParser
+from src.nomad_external_eln_integrations.parsers.elabftw import ELabFTWParser
 
 
 @pytest.fixture(scope='module')
@@ -34,7 +34,7 @@ def parser():
             'tests/data/parsers/elabftw/legacy/ro-crate-metadata.json',
             1,
             {
-                'expected_title': 'Test',
+                'expected_title': '2023 01 13   Test   86506194',
                 'expected_id': 'ro-crate-metadata.json',
                 'expected_experiments_links': 1,
                 'expected_link_title': 'Untitled',
