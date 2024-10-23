@@ -226,15 +226,15 @@ def test_labfolder_detailed(
     labfolder_instance.resync_labfolder_repository = True
     test_archive.data = labfolder_instance
 
-    if status_code is 200:
+    if status_code == 200:
         labfolder_instance.normalize(test_archive, logger=logger)
-        assert len(labfolder_instance.entries) is 1
+        assert len(labfolder_instance.entries) == 1
         assert labfolder_instance.labfolder_email is None
         assert labfolder_instance.password is None
 
         parsed_data = labfolder_instance.entries[0].elements[0].m_to_dict()
         del parsed_data['m_def']
-        if parsed_data['element_type'] is not 'DATA':
+        if parsed_data['element_type'] != 'DATA':
             assert json.dumps(parsed_data, sort_keys=True) == json.dumps(
                 response_data, sort_keys=True
             )

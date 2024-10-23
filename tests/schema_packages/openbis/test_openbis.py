@@ -160,9 +160,9 @@ def test_openbis(
     openbis_instance.password = password
     test_archive.data = openbis_instance
 
-    if status_code is 200:
+    if status_code == 200:
         openbis_instance.normalize(test_archive, logger=logger)
-        assert len(openbis_instance.spaces) is 1
+        assert len(openbis_instance.spaces) == 1
         assert openbis_instance.username is None
         assert openbis_instance.password is None
 
@@ -178,6 +178,6 @@ def test_openbis(
         assert json.dumps(parsed_openbis_experiments, sort_keys=True) == json.dumps(
             experiment_data, sort_keys=True
         )
-    if status_code is 400:
+    if status_code == 400:
         with pytest.raises(OpenbisImportError):
             openbis_instance.normalize(test_archive, logger=logger)
