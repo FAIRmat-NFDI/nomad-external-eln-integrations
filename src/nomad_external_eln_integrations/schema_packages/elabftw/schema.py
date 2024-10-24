@@ -36,9 +36,6 @@ from nomad.metainfo import (
 from nomad.metainfo.metainfo import Property, SchemaPackage
 from nomad.units import ureg
 
-configuration = config.get_plugin_entry_point(
-    'nomad_external_eln_integrations.schema_packages.elabftw:schema'
-)
 
 m_package = SchemaPackage()
 
@@ -162,7 +159,7 @@ class ElabftwProject(ArchiveSection):
         logger.info('Parsing finished.')
 
 
-m_package.init_metainfo()
+m_package.__init_metainfo()
 
 
 def _extract_data(data, jmes_path):

@@ -36,9 +36,6 @@ from nomad.metainfo import (
 )
 from nomad.metainfo.metainfo import SchemaPackage, SectionProxy
 
-# configuration = config.get_plugin_entry_point(
-#     'nomad_external_eln_integrations.schema_packages.labfolder:schema'
-# )
 
 m_package = SchemaPackage()
 
@@ -472,4 +469,4 @@ class LabfolderProject(EntryData):
                         )
 
 
-m_package.init_metainfo()
+m_package.__init_metainfo()
