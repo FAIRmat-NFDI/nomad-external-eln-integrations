@@ -25,7 +25,6 @@ import jmespath
 import numpy as np
 import requests
 import yaml
-from nomad.config import config
 from nomad.datamodel.data import ArchiveSection
 from nomad.metainfo import (
     MSection,
@@ -36,9 +35,6 @@ from nomad.metainfo import (
 from nomad.metainfo.metainfo import Property, SchemaPackage
 from nomad.units import ureg
 
-configuration = config.get_plugin_entry_point(
-    'nomad_external_eln_integrations.schema_packages.elabftw:schema'
-)
 
 m_package = SchemaPackage()
 

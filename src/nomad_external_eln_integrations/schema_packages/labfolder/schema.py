@@ -22,7 +22,6 @@ from urllib.parse import parse_qs, urlparse
 import requests
 import yaml
 from lxml.html.clean import clean_html  # pylint: disable=no-name-in-module
-from nomad.config import config
 from nomad.datamodel.data import ElnIntegrationCategory, EntryData
 from nomad.metainfo import (
     JSON,
@@ -36,9 +35,6 @@ from nomad.metainfo import (
 )
 from nomad.metainfo.metainfo import SchemaPackage, SectionProxy
 
-# configuration = config.get_plugin_entry_point(
-#     'nomad_external_eln_integrations.schema_packages.labfolder:schema'
-# )
 
 m_package = SchemaPackage()
 
