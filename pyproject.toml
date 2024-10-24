@@ -79,7 +79,15 @@ select = [
 ]
 
 ignore = [
+    "F401",
     "F403", # 'from module import *' used; unable to detect undefined names
+    "E501",
+    "PLR2004",
+    "PLR0912",
+    "PLR0913", # Too many arguments in function definition (8 > 5)
+    "PLR0915",
+    "PLW2901",
+    "I001", # [*] Import block is un-sorted or un-formatted
 ]
 
 fixable = ["ALL"]
