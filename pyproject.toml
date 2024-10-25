@@ -118,9 +118,9 @@ where = ["src"]
 [project.entry-points.'nomad.plugin']
 elabftwparser = "nomad_external_eln_integrations.parsers:elabftw_parser_entry_point"
 chemotionparser = "nomad_external_eln_integrations.parsers:chemotion_parser_entry_point"
-labfolderschema = "nomad_external_eln_integrations.schema_packages.labfolder:schema"
-elabftwschema = "nomad_external_eln_integrations.schema_packages.elabftw:schema"
-openbisschema = "nomad_external_eln_integrations.schema_packages.openbis:schema"
+labfolderschema = "nomad_external_eln_integrations.schema_packages.labfolder:labfolder_schema"
+elabftwschema = "nomad_external_eln_integrations.schema_packages.elabftw:elabftw_schema"
+openbisschema = "nomad_external_eln_integrations.schema_packages.openbis:openbis_schema"
 elabftwexample = "nomad_external_eln_integrations.example_uploads:elabftwexample"
 [tool.cruft]
 # Avoid updating workflow files, this leads to permissions issues

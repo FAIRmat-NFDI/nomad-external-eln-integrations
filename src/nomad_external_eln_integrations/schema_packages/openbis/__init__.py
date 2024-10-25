@@ -10,7 +10,7 @@ class OpenbisEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
-schema = OpenbisEntryPoint(
+openbis_schema = OpenbisEntryPoint(
     name='openbis',
     description='NOMAD integration for mapping Openbis data to NOMAD schema',
 )

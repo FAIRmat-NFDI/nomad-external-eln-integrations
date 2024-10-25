@@ -10,7 +10,7 @@ class LabfolderEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
-schema = LabfolderEntryPoint(
+labfolder_schema = LabfolderEntryPoint(
     name='labfolder',
     description='NOMAD integration for mapping Labfolder data to NOMAD schema',
 )

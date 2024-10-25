@@ -10,7 +10,7 @@ class ElabftwNormalizerEntryPoint(SchemaPackageEntryPoint):
         return m_package
 
 
-schema = ElabftwNormalizerEntryPoint(
+elabftw_schema = ElabftwNormalizerEntryPoint(
     name='elabftw',
     description='NOMAD integration for mapping elabftw data to NOMAD schema',
 )
