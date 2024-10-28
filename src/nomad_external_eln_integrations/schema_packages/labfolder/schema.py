@@ -36,7 +36,11 @@ from nomad.metainfo import (
 from nomad.metainfo.metainfo import SchemaPackage, SectionProxy
 
 
-m_package = SchemaPackage()
+m_package = SchemaPackage(
+    aliases=[
+        'nomad_labfolder_plugin',
+    ]
+)
 
 
 class LabfolderDataElementDataContent(MSection):

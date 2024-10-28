@@ -36,7 +36,11 @@ from nomad.metainfo.metainfo import Property, SchemaPackage
 from nomad.units import ureg
 
 
-m_package = SchemaPackage()
+m_package = SchemaPackage(
+    aliases=[
+        'nomad_elabftw_plugin',
+    ]
+)
 
 
 class ElabftwImportError(Exception):

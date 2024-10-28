@@ -27,7 +27,11 @@ from nomad.metainfo import (
     SubSection,
 )
 
-m_package = SchemaPackage()
+m_package = SchemaPackage(
+    aliases=[
+        'nomad_openbis_plugin',
+    ]
+)
 
 
 class OpenbisImportError(Exception):
