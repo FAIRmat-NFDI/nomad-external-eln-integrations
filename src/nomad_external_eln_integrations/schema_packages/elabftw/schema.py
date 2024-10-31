@@ -38,7 +38,7 @@ from nomad.units import ureg
 
 m_package = SchemaPackage(
     aliases=[
-        'nomad_elabftw_plugin',
+        'nomad.parsing.elabftw.elabftw.ELabFTW',
     ]
 )
 

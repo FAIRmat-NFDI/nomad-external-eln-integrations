@@ -29,7 +29,7 @@ from nomad.metainfo import (
 
 m_package = SchemaPackage(
     aliases=[
-        'nomad_openbis_plugin',
+        'nomad.datamodel.metainfo.eln.openbis.OpenbisEntry',
     ]
 )
 

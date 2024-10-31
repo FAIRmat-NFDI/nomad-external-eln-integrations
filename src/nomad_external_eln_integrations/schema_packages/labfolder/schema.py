@@ -38,7 +38,7 @@ from nomad.metainfo.metainfo import SchemaPackage, SectionProxy
 
 m_package = SchemaPackage(
     aliases=[
-        'nomad_labfolder_plugin',
+        'nomad.datamodel.metainfo.eln.labfolder.LabfolderProject',
     ]
 )
 
