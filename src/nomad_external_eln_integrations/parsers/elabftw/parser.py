@@ -80,6 +80,19 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
     return section
 
 
+status_types = MEnum(
+    'Not set',
+    'Running',
+    'Waiting',
+    'Success',
+    'Need to be redone',
+    'Fail',
+    'Maintenance mode',
+    'Need to reorder',
+    'Processed',
+)
+
+
 class ELabFTWRef(MSection):
     """Represents a referenced item in ELabFTW entry."""
 
@@ -330,15 +343,7 @@ class ELabFTW(EntryData):
     author = Quantity(type=str, description="Full name of the experiment's author")
     project_id = Quantity(type=str, description='Project ID')
     status = Quantity(
-        type=MEnum(
-            'Not set',
-            'Running',
-            'Waiting',
-            'Success',
-            'Need to be redone',
-            'Fail',
-            'Maintenance mode',
-        ),
+        type=status_types,
         description='Status of the Experiment',
     )
     keywords = Quantity(
@@ -633,7 +638,9 @@ def _parse_latest(
         title=raw_experiment.get('name', None),
         keywords=raw_experiment.get('keywords', '').split(','),
         id=raw_experiment.get('id', ''),
-        status=raw_experiment.get('creative_work_status', 'Not set'),
+        status=raw_experiment.get('creative_work_status', 'Not set')
+        if raw_experiment.get('creative_work_status', 'Not set') in status_types
+        else 'Not set',
     )
 
     _ = _set_experiment_metadata(
@@ -644,8 +651,10 @@ def _parse_latest(
         created_at=raw_experiment.get('date_created', None),
         extra_fields={
             i: value
-            for i, value in enumerate(raw_experiment.get('variable_measured', []))
-        },
+            for i, value in enumerate(raw_experiment.get('variable_measured') or [])
+        }
+        if raw_experiment.get('variable_measured') is not None
+        else {},
     )
     data_section.steps.extend(
         [
