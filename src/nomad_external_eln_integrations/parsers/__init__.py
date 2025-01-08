@@ -10,7 +10,7 @@ class ElabftwEntryPoint(ParserEntryPoint):
 
 elabftw_parser_entry_point = ElabftwEntryPoint(
     name='parsers/elabftw',
-    aliases=['parsers/elabftw'],
+    aliases=['parsers/elabftw', 'parsers/elabftw_parser'],
     code_name='elabftw',
     code_homepage='https://www.elabftw.net/',
     description='NOMAD parser for eln file formats.',
