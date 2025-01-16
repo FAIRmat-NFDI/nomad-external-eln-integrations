@@ -70,7 +70,8 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
     except Exception:
         logger.error(f"Could not find type fo the file {file['id']}")
         raise ELabFTWParserError(f"Could not find type fo the file {file['id']}")
-    section.m_update_from_dict(graph[file['id']])
+    tmp = {k: v[0] if isinstance(v, list) else v for k, v in graph[file['id']].items()}
+    section.m_update_from_dict(tmp)
     try:
         file_name = file['id'].split('./')[1]
         full_path = os.path.join(parent_folder_raw_path, file_name)
@@ -480,7 +481,8 @@ def _parse_legacy(
         del graph['ro-crate-metadata.json']['type']
     except Exception:
         pass
-    elabftw_experiment.m_update_from_dict(graph['ro-crate-metadata.json'])
+    tmp = {k: v[0] if isinstance(v, list) else v for k, v in graph['ro-crate-metadata.json'].items()}
+    elabftw_experiment.m_update_from_dict(tmp)
     elabftw_entity_type = _set_experiment_metadata(
         raw_experiment, exp_archive, elabftw_experiment, logger
     )
