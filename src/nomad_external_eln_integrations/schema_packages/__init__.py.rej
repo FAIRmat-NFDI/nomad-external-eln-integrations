@@ -1,0 +1,10 @@
+diff a/src/nomad_external_eln_integrations/schema_packages/__init__.py b/src/nomad_external_eln_integrations/schema_packages/__init__.py	(rejected hunks)
+@@ -7,7 +7,7 @@ class NewSchemaPackageEntryPoint(SchemaPackageEntryPoint):
+ 
+     def load(self):
+         from nomad_external_eln_integrations.schema_packages.schema_package import m_package
+- 
++
+         return m_package
+ 
+ 
