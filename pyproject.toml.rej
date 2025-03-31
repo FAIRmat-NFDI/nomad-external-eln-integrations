@@ -1,0 +1,13 @@
+diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
+@@ -25,7 +25,10 @@ maintainers = [
+     { name = "Amir Golparvar", email = "amir.golparvar@physik.hu-berlin.de" },
+ ]
+ license = { file = "LICENSE" }
+-dependencies = ["nomad-lab>=1.3.0"]
++dependencies = [
++    "nomad-lab>=1.3.0",
++    "python-magic-bin; sys_platform == 'win32'",
++]
+ 
+ [project.urls]
+ Repository = "https://github.com/amirgolp/nomad-external-eln-integrations"
