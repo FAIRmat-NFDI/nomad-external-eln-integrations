@@ -1,0 +1,34 @@
+diff a/README.md b/README.md	(rejected hunks)
+@@ -4,10 +4,9 @@ NOMAD External 3rd-party Integrations
+ 
+ This `nomad` plugin was generated with `Cookiecutter` along with `@nomad`'s [`cookiecutter-nomad-plugin`](https://github.com/FAIRmat-NFDI/cookiecutter-nomad-plugin) template.
+ 
+-
+ ## Development
+ 
+-If you want to develop locally this plugin, clone the project and in the plugin folder, create a virtual environment (you can use Python 3.9, 3.10, or 3.11):
++If you want to develop locally this plugin, clone the project and in the plugin folder, create a virtual environment (you can use Python 3.10, 3.11 or 3.12):
+ ```sh
+ git clone https://github.com/amirgolp/nomad-external-eln-integrations.git
+ cd nomad-external-eln-integrations
+@@ -27,19 +26,9 @@ pip install uv
+ 
+ Install the `nomad-lab` package:
+ ```sh
+-uv pip install '.[dev]' --index-url https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple
+-```
+-
+-**Note!**
+-Until we have an official pypi NOMAD release with the plugins functionality make
+-sure to include NOMAD's internal package registry (via `--index-url` in the above command).
+-
+-The plugin is still under development. If you would like to contribute, install the package in editable mode (with the added `-e` flag):
+-```sh
+-uv pip install -e '.[dev]' --index-url https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple
++uv pip install -e '.[dev]'
+ ```
+ 
+-
+ ### Run the tests
+ 
+ You can run locally the tests:
