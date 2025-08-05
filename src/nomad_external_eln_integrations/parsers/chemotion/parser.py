@@ -407,7 +407,7 @@ _element_type_section_mapping = {
 
 def _set_inf_to_nan_if_string(dct, key):
     if key in dct and isinstance(dct[key], str):
-        dct[key] = np.NaN
+        dct[key] = np.nan
 
 
 class ChemotionParser(MatchingParser):
