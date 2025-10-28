@@ -87,6 +87,7 @@ ignore = [
     "F401",
     "F403", # 'from module import *' used; unable to detect undefined names
     "E501",
+    "PLC0415", # import-outside-top-level
     "PLR2004",
     "PLR0912",
     "PLR0913", # Too many arguments in function definition (8 > 5)
