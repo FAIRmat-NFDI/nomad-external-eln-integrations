@@ -21,7 +21,7 @@ from urllib.parse import parse_qs, urlparse
 
 import requests
 import yaml
-from lxml.html.clean import clean_html  # pylint: disable=no-name-in-module
+from lxml.html.clean import clean_html
 from nomad.datamodel.data import ElnIntegrationCategory, EntryData
 from nomad.metainfo import (
     JSON,
