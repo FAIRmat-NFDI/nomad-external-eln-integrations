@@ -168,12 +168,26 @@ class ELabFTWExperimentData(MSection):
     Detailed information of the given ELabFTW experiment, such as links to external resources and extra fields, are
     stored here.
     """
+    # Enable this section on the Overview page
+    m_def = Section(
+        a_eln=ELNAnnotation(
+            overview=True,
+            label='Experiment Data'
+        )
+    )
 
     body = Quantity(
         type=str,
         description='an html-tagged string containing the information of this experiment',
+        # Configure the Rich Text Editor and show on Overview
+        a_eln=ELNAnnotation(
+            component='RichTextEditQuantity',
+            overview=True,
+            label='Description'
+        ),
         a_browser=dict(render_value='HtmlValue'),
     )
+
     created_at = Quantity(
         type=Datetime,
         description='Date and time of when this experiment is created at.',
@@ -326,7 +340,13 @@ class ELabFTW(EntryData):
     title is used as an identifier for the GUI to differentiate between the parsed entries and the original file.
     """
 
-    m_def = Section(label='ELabFTW Project Import', categories=[ElnIntegrationCategory])
+    m_def = Section(
+        label='ELabFTW Project Import',
+        categories=[ElnIntegrationCategory],
+        a_eln=ELNAnnotation(
+            overview=True
+        )
+    )
 
     id = Quantity(
         type=str,
@@ -351,7 +371,12 @@ class ELabFTW(EntryData):
         type=str, shape=['*'], description='Keywords associated with the Experiment'
     )
 
-    experiment_data = SubSection(sub_section=ELabFTWExperimentData)
+    experiment_data = SubSection(
+        sub_section=ELabFTWExperimentData,
+        a_eln=ELNAnnotation(
+            overview=True
+        )
+    )
     experiment_files = SubSection(sub_section=ELabFTWBaseSection, repeats=True)
 
     def post_process(self, **kwargs):
