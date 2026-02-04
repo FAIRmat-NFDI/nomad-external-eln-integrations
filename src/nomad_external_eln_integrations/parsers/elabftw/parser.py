@@ -176,6 +176,12 @@ class ELabFTWExperimentData(MSection):
         )
     )
 
+    type = Quantity(
+        type=str,
+        description='Type of the experiment (e.g. from eLabFTW template)',
+        a_eln=ELNAnnotation(component='StringEditQuantity')
+    )
+
     body = Quantity(
         type=str,
         description='an html-tagged string containing the information of this experiment',
@@ -513,15 +519,16 @@ def _parse_legacy(
     )
 
     try:
-        author_full_name = ' '.join(
-            [
-                data['graph'][-1]['given_name'],
-                data['graph'][-1]['family_name'],
-            ]
-        )
-        elabftw_experiment.post_process(full_name=author_full_name)
-    except Exception:
-        logger.error('Could not extract the author name')
+        # Search for the Person object anywhere in the graph
+        author_item = next((item for item in data['@graph'] if item.get('@type') == 'Person'), None)
+
+        if author_item:
+            author_full_name = f"{author_item.get('givenName', '')} {author_item.get('familyName', '')}".strip()
+            elabftw_experiment.post_process(full_name=author_full_name)
+        else:
+            logger.warning('No Person found in @graph for author extraction')
+    except Exception as e:
+        logger.error(f'Could not extract the author name: {e}')
 
     mainfile_raw_path = os.path.dirname(mainfile)
     parent_folder_raw_path = mainfile.split('/')[-2]
@@ -592,8 +599,12 @@ def _parse_legacy(
     try:
         cleaned_data = clean_nones(export_data[0])
         cleaned_data = convert_keys(cleaned_data, key_mapping)
+        # Split 'tags' pipe-separated string into a list
+        if 'tags' in cleaned_data and isinstance(cleaned_data['tags'], str):
+            cleaned_data['tags'] = cleaned_data['tags'].split('|')
         experiment_data.m_update_from_dict(cleaned_data)
-    except Exception:
+    except Exception as e:
+        logger.error(f"Failed to parse experiment data: {e}")
         logger.warning(
             f"Couldn't read and parse the data from {export_json_path.lstrip('./')} file."
         )
