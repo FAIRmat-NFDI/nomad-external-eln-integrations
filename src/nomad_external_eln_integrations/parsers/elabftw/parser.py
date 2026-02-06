@@ -68,7 +68,7 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
     try:
         section = _element_type_section_mapping[file['type']]()
     except Exception:
-        logger.error(f'Could not find type fo the file {file["id"]}')
+        logger.error('Could not find type for the file')
         raise ELabFTWParserError(f'Could not find type fo the file {file["id"]}')
     tmp = {k: v[0] if isinstance(v, list) else v for k, v in graph[file['id']].items()}
     section.m_update_from_dict(tmp)
@@ -77,7 +77,7 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
         full_path = os.path.join(parent_folder_raw_path, file_name)
         section.post_process(file_name=full_path)
     except Exception:
-        logger.error(f'Could not set the file path for file {file["id"]}')
+        logger.error('Could not set the file path for file')
     return section
 
 
@@ -246,16 +246,13 @@ class ELabFTWExperimentData(MSection):
                     self.references.append(ref)
                     if search_result.pagination.total > 1:
                         logger.warn(
-                            f'Found {search_result.pagination.total} entries with external id: '
-                            f'"{item[1]}". Will use the first one found.'
+                            'Found multiple entries with external id. Will use the first one found.'
                         )
                 else:
-                    logger.warn(
-                        f'Found no entries with metadata.external_id: "{item[1]}".'
-                    )
-        except Exception as e:
+                    logger.warn('Found no entries with metadata.external_id')
+        except Exception:
             logger.warning(
-                f'Could not fetch referenced experiments internally: {e}. '
+                'Could not fetch referenced experiments internally. '
                 'This is normal if the referenced experiments are not in the same upload.'
             )
 
@@ -704,7 +701,7 @@ def _set_child_entry_name(exp_id, child_archive, archive, logger):
         archive.metadata.m_update_from_dict(dict(entry_name='ELabFTW Schema'))
         child_archive.metadata.m_update_from_dict(dict(entry_name=extracted_title))
     else:
-        logger.warning(f"Couldn't extract the title from {exp_id}")
+        logger.warning("Couldn't extract the title from experiment id")
         extracted_title = None
     return extracted_title
 
@@ -797,8 +794,8 @@ def _parse_latest(
                     if given or family:
                         author_full_name = f'{given} {family}'.strip()
                         break
-    except Exception as e:
-        logger.error(f'Could not extract the author name: {e}')
+    except Exception:
+        logger.error('Could not extract the author name')
 
     # Process keywords - handle comma-separated string
     keywords_raw = raw_experiment.get('keywords', '')
