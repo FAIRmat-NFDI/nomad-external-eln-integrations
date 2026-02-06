@@ -68,8 +68,8 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
     try:
         section = _element_type_section_mapping[file['type']]()
     except Exception:
-        logger.error(f"Could not find type fo the file {file['id']}")
-        raise ELabFTWParserError(f"Could not find type fo the file {file['id']}")
+        logger.error(f'Could not find type fo the file {file["id"]}')
+        raise ELabFTWParserError(f'Could not find type fo the file {file["id"]}')
     tmp = {k: v[0] if isinstance(v, list) else v for k, v in graph[file['id']].items()}
     section.m_update_from_dict(tmp)
     try:
@@ -77,7 +77,7 @@ def _create_file_section(file, graph, parent_folder_raw_path, logger=None):
         full_path = os.path.join(parent_folder_raw_path, file_name)
         section.post_process(file_name=full_path)
     except Exception:
-        logger.error(f"Could not set the file path for file {file['id']}")
+        logger.error(f'Could not set the file path for file {file["id"]}')
     return section
 
 
@@ -168,18 +168,14 @@ class ELabFTWExperimentData(MSection):
     Detailed information of the given ELabFTW experiment, such as links to external resources and extra fields, are
     stored here.
     """
+
     # Enable this section on the Overview page
-    m_def = Section(
-        a_eln=ELNAnnotation(
-            overview=True,
-            label='Experiment Data'
-        )
-    )
+    m_def = Section(a_eln=ELNAnnotation(overview=True, label='Experiment Data'))
 
     type = Quantity(
         type=str,
         description='Type of the experiment (e.g. from eLabFTW template)',
-        a_eln=ELNAnnotation(component='StringEditQuantity')
+        a_eln=ELNAnnotation(component='StringEditQuantity'),
     )
 
     body = Quantity(
@@ -187,9 +183,7 @@ class ELabFTWExperimentData(MSection):
         description='an html-tagged string containing the information of this experiment',
         # Configure the Rich Text Editor and show on Overview
         a_eln=ELNAnnotation(
-            component='RichTextEditQuantity',
-            overview=True,
-            label='Description'
+            component='RichTextEditQuantity', overview=True, label='Description'
         ),
         a_browser=dict(render_value='HtmlValue'),
     )
@@ -349,9 +343,7 @@ class ELabFTW(EntryData):
     m_def = Section(
         label='ELabFTW Project Import',
         categories=[ElnIntegrationCategory],
-        a_eln=ELNAnnotation(
-            overview=True
-        )
+        a_eln=ELNAnnotation(overview=True),
     )
 
     id = Quantity(
@@ -378,10 +370,7 @@ class ELabFTW(EntryData):
     )
 
     experiment_data = SubSection(
-        sub_section=ELabFTWExperimentData,
-        a_eln=ELNAnnotation(
-            overview=True
-        )
+        sub_section=ELabFTWExperimentData, a_eln=ELNAnnotation(overview=True)
     )
     experiment_files = SubSection(sub_section=ELabFTWBaseSection, repeats=True)
 
@@ -512,21 +501,61 @@ def _parse_legacy(
         del graph['ro-crate-metadata.json']['type']
     except Exception:
         pass
-    tmp = {k: v[0] if isinstance(v, list) else v for k, v in graph['ro-crate-metadata.json'].items()}
+    tmp = {
+        k: v[0] if isinstance(v, list) else v
+        for k, v in graph['ro-crate-metadata.json'].items()
+    }
     elabftw_experiment.m_update_from_dict(tmp)
     elabftw_entity_type = _set_experiment_metadata(
         raw_experiment, exp_archive, elabftw_experiment, logger
     )
 
+    # Extract author with backward compatibility
+    author_full_name = None
     try:
-        # Search for the Person object anywhere in the graph
-        author_item = next((item for item in data['@graph'] if item.get('@type') == 'Person'), None)
+        # Strategy 1: Search for Person or Author type in the graph
+        author_types = ['Person', 'Author', 'schema:Person', 'schema:Author']
+        author_item = next(
+            (item for item in data['@graph'] if item.get('@type') in author_types), None
+        )
 
         if author_item:
-            author_full_name = f"{author_item.get('givenName', '')} {author_item.get('familyName', '')}".strip()
+            # Try different key variants for first/last name
+            given_name = (
+                author_item.get('givenName')
+                or author_item.get('given_name')
+                or author_item.get('firstName')
+                or ''
+            )
+            family_name = (
+                author_item.get('familyName')
+                or author_item.get('family_name')
+                or author_item.get('lastName')
+                or ''
+            )
+            # Try full name if available
+            full_name = author_item.get('name') or author_item.get('fullName')
+
+            if full_name:
+                author_full_name = full_name
+            elif given_name or family_name:
+                author_full_name = f'{given_name} {family_name}'.strip()
+
+        # Strategy 2: Fallback to legacy approach (last item in graph with name fields)
+        if not author_full_name:
+            last_item = data['@graph'][-1] if data.get('@graph') else None
+            if last_item:
+                given = last_item.get('given_name') or last_item.get('givenName') or ''
+                family = (
+                    last_item.get('family_name') or last_item.get('familyName') or ''
+                )
+                if given or family:
+                    author_full_name = f'{given} {family}'.strip()
+
+        if author_full_name:
             elabftw_experiment.post_process(full_name=author_full_name)
         else:
-            logger.warning('No Person found in @graph for author extraction')
+            logger.warning('Could not extract author name from available keys')
     except Exception as e:
         logger.error(f'Could not extract the author name: {e}')
 
@@ -599,12 +628,40 @@ def _parse_legacy(
     try:
         cleaned_data = clean_nones(export_data[0])
         cleaned_data = convert_keys(cleaned_data, key_mapping)
-        # Split 'tags' pipe-separated string into a list
-        if 'tags' in cleaned_data and isinstance(cleaned_data['tags'], str):
-            cleaned_data['tags'] = cleaned_data['tags'].split('|')
+
+        # Normalize tags with backward compatibility
+        # Try 'tags' first, then 'keywords' as fallback
+        tags_value = cleaned_data.get('tags') or cleaned_data.get('keywords')
+        if tags_value:
+            if isinstance(tags_value, str):
+                # Split pipe-separated or comma-separated strings
+                if '|' in tags_value:
+                    cleaned_data['tags'] = [
+                        t.strip() for t in tags_value.split('|') if t.strip()
+                    ]
+                elif ',' in tags_value:
+                    cleaned_data['tags'] = [
+                        t.strip() for t in tags_value.split(',') if t.strip()
+                    ]
+                else:
+                    # Single tag
+                    cleaned_data['tags'] = (
+                        [tags_value.strip()] if tags_value.strip() else []
+                    )
+            elif isinstance(tags_value, list):
+                # Already a list, ensure it's clean
+                cleaned_data['tags'] = [str(t).strip() for t in tags_value if t]
+            # Remove 'keywords' if we used it as fallback
+            if (
+                'tags' in cleaned_data
+                and 'keywords' in cleaned_data
+                and cleaned_data.get('keywords') == tags_value
+            ):
+                cleaned_data.pop('keywords', None)
+
         experiment_data.m_update_from_dict(cleaned_data)
     except Exception as e:
-        logger.error(f"Failed to parse experiment data: {e}")
+        logger.error(f'Failed to parse experiment data: {e}')
         logger.warning(
             f"Couldn't read and parse the data from {export_json_path.lstrip('./')} file."
         )
@@ -671,10 +728,93 @@ def _parse_latest(
     archive,
     logger,
 ) -> ELabFTW:
+    # Extract author with backward compatibility
+    author_full_name = None
+    try:
+        # Strategy 1: Use the author reference from raw_experiment
+        author_ref = raw_experiment.get('author', {})
+        if isinstance(author_ref, dict):
+            author_id = author_ref.get('@id') or author_ref.get('id')
+        else:
+            author_id = author_ref
+
+        # Look up the author by ID in the graph
+        if author_id and author_id in graph:
+            author_obj = graph[author_id]
+
+            # Try multiple key variants for given name
+            given = (
+                author_obj.get('givenName')
+                or author_obj.get('given_name')
+                or author_obj.get('firstName')
+                or author_obj.get('name', '')
+            )
+
+            # Try multiple key variants for family name
+            family = (
+                author_obj.get('familyName')
+                or author_obj.get('family_name')
+                or author_obj.get('lastName')
+                or author_obj.get('fullName', '')
+            )
+
+            author_full_name = f'{given} {family}'.strip()
+
+        # Strategy 2: Fallback - search for Person or Author type in the graph
+        if not author_full_name:
+            author_types = ['Person', 'Author', 'schema:Person', 'schema:Author']
+            for item in graph.values():
+                if not isinstance(item, dict):
+                    continue
+
+                item_type = item.get('@type', item.get('type', ''))
+                if isinstance(item_type, list):
+                    matches_type = any(t in author_types for t in item_type)
+                else:
+                    matches_type = item_type in author_types
+
+                if matches_type:
+                    # Try multiple key variants for given name
+                    given = (
+                        item.get('givenName')
+                        or item.get('given_name')
+                        or item.get('firstName')
+                        or item.get('name', '')
+                    )
+
+                    # Try multiple key variants for family name
+                    family = (
+                        item.get('familyName')
+                        or item.get('family_name')
+                        or item.get('lastName')
+                        or item.get('fullName', '')
+                    )
+
+                    # If we found a person with name components, use them
+                    if given or family:
+                        author_full_name = f'{given} {family}'.strip()
+                        break
+    except Exception as e:
+        logger.error(f'Could not extract the author name: {e}')
+
+    # Process keywords - handle comma-separated string
+    keywords_raw = raw_experiment.get('keywords', '')
+    if isinstance(keywords_raw, str):
+        keywords = [k.strip() for k in keywords_raw.split(',') if k.strip()]
+    elif isinstance(keywords_raw, list):
+        keywords = keywords_raw
+    else:
+        keywords = []
+
     latest_elab_instance = ELabFTW(
-        author=raw_experiment.get('author').get('id'),
+        author=author_full_name
+        or (
+            raw_experiment.get('author', {}).get('id')
+            if isinstance(raw_experiment.get('author'), dict)
+            else ''
+        ),
         title=raw_experiment.get('name', None),
-        keywords=raw_experiment.get('keywords', '').split(','),
+        keywords=keywords,
         id=raw_experiment.get('id', ''),
         status=raw_experiment.get('creative_work_status', 'Not set')
         if raw_experiment.get('creative_work_status', 'Not set') in status_types
