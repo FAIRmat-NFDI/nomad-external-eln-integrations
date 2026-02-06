@@ -253,8 +253,11 @@ class ELabFTWExperimentData(MSection):
                     logger.warn(
                         f'Found no entries with metadata.external_id: "{item[1]}".'
                     )
-        except Exception:
-            logger.error('Failed to fetch the referenced experiments internally.')
+        except Exception as e:
+            logger.warning(
+                f'Could not fetch referenced experiments internally: {e}. '
+                'This is normal if the referenced experiments are not in the same upload.'
+            )
 
 
 class ELabFTWComment(MSection):
