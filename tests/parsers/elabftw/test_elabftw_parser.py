@@ -108,25 +108,25 @@ def test_elabftw(
 
     # Test author extraction across all formats
     if 'expected_author' in expected_results:
-        assert child_archive.data.author == expected_results['expected_author'], (
-            f"Author mismatch: expected '{expected_results['expected_author']}', got '{child_archive.data.author}'"
-        )
+        assert (
+            child_archive.data.author == expected_results['expected_author']
+        ), f"Author mismatch: expected '{expected_results['expected_author']}', got '{child_archive.data.author}'"
 
     # Test tags normalization (pipe-separated in backward_compat, null in legacy)
     if 'expected_tags' in expected_results:
         actual_tags = child_archive.data.experiment_data.tags
         expected_tags = expected_results['expected_tags']
-        assert actual_tags == expected_tags, (
-            f'Tags mismatch: expected {expected_tags}, got {actual_tags}'
-        )
+        assert (
+            actual_tags == expected_tags
+        ), f'Tags mismatch: expected {expected_tags}, got {actual_tags}'
 
     # Test keywords extraction (comma-separated in latest format)
     if 'expected_keywords' in expected_results:
         actual_keywords = child_archive.data.keywords
         expected_keywords = expected_results['expected_keywords']
-        assert actual_keywords == expected_keywords, (
-            f'Keywords mismatch: expected {expected_keywords}, got {actual_keywords}'
-        )
+        assert (
+            actual_keywords == expected_keywords
+        ), f'Keywords mismatch: expected {expected_keywords}, got {actual_keywords}'
 
     assert (
         len(child_archive.data.experiment_data.experiments_links)
