@@ -314,6 +314,7 @@ class LabfolderProject(EntryData):
         super().__init__(*args, **kwargs)
 
         self.__headers = None
+        self.__authorization_prefix = 'Bearer'
         self.logger = None
 
     project_url = Quantity(type=str, a_eln=dict(component='StringEditQuantity'))
@@ -334,6 +335,23 @@ class LabfolderProject(EntryData):
         response = method(
             f'{self._api_base_url}{url}', headers=self._headers, timeout=10, **kwargs
         )
+
+        if response.status_code == 401:
+            if self.__authorization_prefix == 'Bearer':
+                self.__authorization_prefix = 'Token'
+            else:
+                self.__authorization_prefix = 'Bearer'
+
+            self.__headers['Authorization'] = (
+                f'{self.__authorization_prefix} {self.__token}'
+            )
+
+            response = method(
+                f'{self._api_base_url}{url}',
+                headers=self._headers,
+                timeout=10,
+                **kwargs,
+            )
 
         if response.status_code >= 400:
             self.logger.error(
@@ -371,7 +389,10 @@ class LabfolderProject(EntryData):
                 )
                 raise LabfolderImportError()
 
-            self.__headers = dict(Authorization=f'Token {response.json()["token"]}')
+            self.__token = response.json().get('token')
+            self.__headers = dict(
+                Authorization=f'{self.__authorization_prefix} {self.__token}'
+            )
 
         return self.__headers
 

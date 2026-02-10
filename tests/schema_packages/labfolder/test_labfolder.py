@@ -16,16 +16,17 @@
 # limitations under the License.
 #
 
-from unittest.mock import MagicMock
-import pytest
-from nomad import utils
 import json
+from unittest.mock import MagicMock
+
+import pytest
 import requests
+from nomad import utils
 from nomad.datamodel import EntryArchive, EntryMetadata
 
 from nomad_external_eln_integrations.schema_packages.labfolder.schema import (
-    LabfolderProject,
     LabfolderImportError,
+    LabfolderProject,
 )
 
 
@@ -246,3 +247,56 @@ def test_labfolder_detailed(
     else:
         with pytest.raises(LabfolderImportError):
             labfolder_instance.normalize(test_archive, logger=logger)
+
+
+def test_labfolder_unauthorized(monkeypatch):
+    logger = utils.get_logger(__name__)
+    project_url = 'https://labfolder.labforward.app/eln/notebook#?projectIds=1'
+    labfolder_email = 'test_email'
+    password = 'test_password'
+
+    def mock_labfolder_response_method(*args, **kwargs):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {'token': 'test'}
+        return mock_response
+
+    mock_response_401 = MagicMock()
+    mock_response_401.status_code = 401
+
+    mock_response_200 = MagicMock()
+    mock_response_200.status_code = 200
+    mock_response_200.json.return_value = [
+        {'elements': [{'id': '1', 'version_id': '1', 'type': 'TEXT'}]}
+    ]
+
+    mock_response_element = MagicMock()
+    mock_response_element.status_code = 200
+    mock_response_element.json.return_value = {
+        'entry_id': '1',
+        'id': '1',
+        'version_id': '1',
+        'element_type': 'TEXT',
+        'content': '<p>test content</p>',
+    }
+
+    def mock_labfolder_get_method(url, headers=None, **kwargs):
+        if 'entries' in url:
+            if headers and 'Bearer' in headers.get('Authorization', ''):
+                return mock_response_401
+            return mock_response_200
+        return mock_response_element
+
+    monkeypatch.setattr(requests, 'post', mock_labfolder_response_method)
+    monkeypatch.setattr(requests, 'get', mock_labfolder_get_method)
+
+    test_archive = EntryArchive(metadata=EntryMetadata())
+    labfolder_instance = LabfolderProject()
+    labfolder_instance.project_url = project_url
+    labfolder_instance.labfolder_email = labfolder_email
+    labfolder_instance.password = password
+    labfolder_instance.resync_labfolder_repository = True
+    test_archive.data = labfolder_instance
+
+    labfolder_instance.normalize(test_archive, logger=logger)
+    assert len(labfolder_instance.entries) == 1
